@@ -1,10 +1,14 @@
 package hainer.mod.potionbar;
 
+
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffect;
@@ -18,12 +22,14 @@ public class PotionBar implements ClientModInitializer {
 	public static final String MODID = "potion-bar";
 	private static final Identifier BG_TEXTURE = Identifier.of(MODID, "textures/gui/bg/potion_bg.png");
 
+
 	// Клас для зберігання даних про іконку та бар для ефекту
 	public static class EffectBarData {
 		public final Identifier icon;
 		public final Identifier bar;
 		public final int barWidth;
 		public final int barHeight;
+
 
 		public EffectBarData(Identifier icon, Identifier bar, int barWidth, int barHeight) {
 			this.icon = icon;
@@ -249,6 +255,8 @@ public class PotionBar implements ClientModInitializer {
 		MinecraftClient mc = MinecraftClient.getInstance();
 		if (mc.player == null) return;
 
+		RenderPipeline pipeline = RenderPipelines.GUI_TEXTURED;
+
 		// Збираємо ефекти, для яких задано бар
 		List<StatusEffectInstance> displayedEffects = new ArrayList<>();
 		for (StatusEffectInstance effect : mc.player.getStatusEffects()) {
@@ -283,14 +291,16 @@ public class PotionBar implements ClientModInitializer {
 			EffectBarData barData = BAR_DATA.get(effect.getEffectType());
 			int y = yStart + i * BAR_SPACING;
 
-			context.drawTexture(RenderLayer::getGuiTextured, BG_TEXTURE, x, y, 0, 0, 64, 32, 64, 32);
-			context.drawTexture(RenderLayer::getGuiTextured, barData.icon, x, y, 0, 0, 64, 32, 64, 32);
+			context.drawTexture(pipeline, BG_TEXTURE, x, y, 0, 0, 64, 32, 64, 32);
+			context.drawTexture(pipeline, barData.icon, x, y, 0, 0, 64, 32, 64, 32);
 
 			float progress = maxDuration > 0 ? Math.max(0f, Math.min(1f, (float)effect.getDuration() / maxDuration)) : 0f;
 			int barWidth = (int)(barData.barWidth * progress);
 
 			if (barWidth > 0) {
-				context.drawTexture(RenderLayer::getGuiTextured, barData.bar, x + BAR_OFFSET_X, y + BAR_OFFSET_Y, 0, 0, barWidth, barData.barHeight, barData.barWidth, barData.barHeight);
+				context.drawTexture(pipeline, barData.bar, x + BAR_OFFSET_X, y + BAR_OFFSET_Y, 0, 0, barWidth, barData.barHeight, barData.barWidth, barData.barHeight
+				);
+
 			}
 		}
 	}
