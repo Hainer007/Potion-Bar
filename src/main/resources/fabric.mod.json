@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "potion-bar",
+	"version": "${version}",
+	"name": "Potion Bar",
+	"description": "Potion bar mod that adds a progress bar for potions",
+	"authors": [
+		"Hainer"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/potion-bar/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"hainer.mod.potionbar.PotionBar"
+		]
+	},
+	"mixins": [
+		"potion-bar.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.0",
+		"fabric-api": "*",
+		"minecraft": ">=1.21.2 <=1.21.5"
+	}
+}
