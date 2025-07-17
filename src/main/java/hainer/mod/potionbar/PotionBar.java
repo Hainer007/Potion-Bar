@@ -182,7 +182,7 @@ public class PotionBar implements ClientModInitializer {
 				39, 4
 		));
 		BAR_DATA.put(StatusEffects.SLOW_FALLING, new EffectBarData(
-				Identifier.of(MODID, "textures/gui/icon/slow_falling_bar_icon.png"),
+				Identifier.of(MODID, "textures/gui/icon/slow_falling_icon.png"),
 				Identifier.of(MODID, "textures/gui/bar/slow_falling_bar.png"),
 				39, 4
 		));
