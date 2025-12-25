@@ -16,7 +16,7 @@ A simple, useful, and pixel-perfect way to keep track of your potion effects.
 
 ---
 
-🟩 **Minecraft**: 1.21.2-1.21.5  
+🟩 **Minecraft**: 1.21.2-1.21.11
 🧵 **Modloader**: Fabric   
 
 ---
