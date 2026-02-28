@@ -1,20 +1,20 @@
 package hainer.mod.potionbar;
 
-
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
+
+import hainer.mod.potionbar.config.ModSettings;
+import hainer.mod.potionbar.config.PotionBarCommands;
 
 import java.util.*;
 
@@ -22,14 +22,11 @@ public class PotionBar implements ClientModInitializer {
 	public static final String MODID = "potion-bar";
 	private static final Identifier BG_TEXTURE = Identifier.of(MODID, "textures/gui/bg/potion_bg.png");
 
-
-	// Клас для зберігання даних про іконку та бар для ефекту
 	public static class EffectBarData {
 		public final Identifier icon;
 		public final Identifier bar;
 		public final int barWidth;
 		public final int barHeight;
-
 
 		public EffectBarData(Identifier icon, Identifier bar, int barWidth, int barHeight) {
 			this.icon = icon;
@@ -50,7 +47,7 @@ public class PotionBar implements ClientModInitializer {
 				Identifier.of(MODID, "textures/gui/icon/bad_omen_icon.png"),
 				Identifier.of(MODID, "textures/gui/bar/bad_omen_bar.png"),
 				39, 4
-		 ));
+		));
 		BAR_DATA.put(StatusEffects.BLINDNESS, new EffectBarData(
 				Identifier.of(MODID, "textures/gui/icon/blindness_icon.png"),
 				Identifier.of(MODID, "textures/gui/bar/blindness_bar.png"),
@@ -248,6 +245,8 @@ public class PotionBar implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+		ModSettings.get(); // load/create config
+		PotionBarCommands.register();
 		HudRenderCallback.EVENT.register(this::onHudRender);
 	}
 
@@ -257,7 +256,6 @@ public class PotionBar implements ClientModInitializer {
 
 		RenderPipeline pipeline = RenderPipelines.GUI_TEXTURED;
 
-		// Збираємо ефекти, для яких задано бар
 		List<StatusEffectInstance> displayedEffects = new ArrayList<>();
 		for (StatusEffectInstance effect : mc.player.getStatusEffects()) {
 			if (BAR_DATA.containsKey(effect.getEffectType())) {
@@ -280,7 +278,14 @@ public class PotionBar implements ClientModInitializer {
 		}
 		maxDurations.keySet().removeIf(key -> !currentKeys.contains(key));
 
-		int x = (mc.getWindow().getScaledWidth() - 64) / 2;
+		int screenW = mc.getWindow().getScaledWidth();
+
+		int x = switch (ModSettings.get().position) {
+			case LEFT -> 10;
+			case RIGHT -> screenW - 64 - 10;
+			default -> (screenW - 64) / 2;
+		};
+
 		int yStart = 10;
 
 		for (int i = 0; i < displayedEffects.size(); ++i) {
@@ -294,13 +299,25 @@ public class PotionBar implements ClientModInitializer {
 			context.drawTexture(pipeline, BG_TEXTURE, x, y, 0, 0, 64, 32, 64, 32);
 			context.drawTexture(pipeline, barData.icon, x, y, 0, 0, 64, 32, 64, 32);
 
-			float progress = maxDuration > 0 ? Math.max(0f, Math.min(1f, (float)effect.getDuration() / maxDuration)) : 0f;
-			int barWidth = (int)(barData.barWidth * progress);
+			float progress = maxDuration > 0
+					? Math.max(0f, Math.min(1f, (float) effect.getDuration() / (float) maxDuration))
+					: 0f;
+
+			int barWidth = (int) (barData.barWidth * progress);
 
 			if (barWidth > 0) {
-				context.drawTexture(pipeline, barData.bar, x + BAR_OFFSET_X, y + BAR_OFFSET_Y, 0, 0, barWidth, barData.barHeight, barData.barWidth, barData.barHeight
+				context.drawTexture(
+						pipeline,
+						barData.bar,
+						x + BAR_OFFSET_X,
+						y + BAR_OFFSET_Y,
+						0,
+						0,
+						barWidth,
+						barData.barHeight,
+						barData.barWidth,
+						barData.barHeight
 				);
-
 			}
 		}
 	}
