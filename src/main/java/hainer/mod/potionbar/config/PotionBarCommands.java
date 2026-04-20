@@ -1,10 +1,10 @@
 package hainer.mod.potionbar.config;
 
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 
@@ -30,7 +30,7 @@ public final class PotionBarCommands {
                                         ModSettings.get().setPosition(pos);
 
                                         ctx.getSource().sendFeedback(
-                                                Component.literal("PotionBar position = " + pos.name().toLowerCase())
+                                                Text.literal("PotionBar position = " + pos.name().toLowerCase())
                                         );
                                         return 1;
                                     })
@@ -50,7 +50,7 @@ public final class PotionBarCommands {
                                         boolean show = mode.equals("show");
                                         if (!mode.equals("show") && !mode.equals("hide")) {
                                             ctx.getSource().sendError(
-                                                    Component.literal("Use: /potionbar vanilaEffects show|hide")
+                                                    Text.literal("Use: /potionbar vanilaEffects show|hide")
                                             );
                                             return 0;
                                         }
@@ -58,7 +58,7 @@ public final class PotionBarCommands {
                                         ModSettings.get().setVanillaEffects(show);
 
                                         ctx.getSource().sendFeedback(
-                                                Component.literal("Vanilla effects = " + (show ? "show" : "hide"))
+                                                Text.literal("Vanilla effects = " + (show ? "show" : "hide"))
                                         );
                                         return 1;
                                     })
