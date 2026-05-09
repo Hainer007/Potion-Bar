@@ -21,6 +21,7 @@ import java.util.*;
 public class PotionBar implements ClientModInitializer {
 	public static final String MODID = "potion-bar";
 	private static final Identifier BG_TEXTURE = Identifier.fromNamespaceAndPath(MODID, "textures/gui/bg/potion_bg.png");
+	private static final Identifier DEFAULT_BAR = Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/default_bar.png");
 	private static final Identifier HUD_ID = Identifier.fromNamespaceAndPath(MODID, "potion_bar");
 
 	public static class EffectBarData {
@@ -28,12 +29,22 @@ public class PotionBar implements ClientModInitializer {
 		public final Identifier bar;
 		public final int barWidth;
 		public final int barHeight;
+		public final boolean isFallback;
 
 		public EffectBarData(Identifier icon, Identifier bar, int barWidth, int barHeight) {
 			this.icon = icon;
 			this.bar = bar;
 			this.barWidth = barWidth;
 			this.barHeight = barHeight;
+			this.isFallback = false;
+		}
+
+		public EffectBarData(Identifier icon, Identifier bar, int barWidth, int barHeight, boolean isFallback) {
+			this.icon = icon;
+			this.bar = bar;
+			this.barWidth = barWidth;
+			this.barHeight = barHeight;
+			this.isFallback = isFallback;
 		}
 	}
 
@@ -244,6 +255,7 @@ public class PotionBar implements ClientModInitializer {
 	private record EffectKey(Holder<MobEffect> effect, int amplifier) {}
 
 	private final Map<EffectKey, Integer> maxDurations = new HashMap<>();
+	private final Map<Holder<MobEffect>, EffectBarData> fallbackCache = new HashMap<>();
 
 	@Override
 	public void onInitializeClient() {
@@ -257,18 +269,36 @@ public class PotionBar implements ClientModInitializer {
 		);
 	}
 
+	private EffectBarData getBarData(MobEffectInstance effect) {
+		EffectBarData known = BAR_DATA.get(effect.getEffect());
+		if (known != null) return known;
+
+		return fallbackCache.computeIfAbsent(effect.getEffect(), entry -> {
+			Identifier icon = entry.unwrapKey()
+					.map(k -> {
+						// В деяких версіях 26.x це може бути .registryKey().location()
+						// або просто через toString і парсинг
+						String id = k.toString(); // "minecraft:mob_effect/speed" або подібне
+						// Краще через getId якщо є
+						return Identifier.fromNamespaceAndPath(
+								k.registry().getNamespace(),
+								"textures/mob_effect/" + k.registry().getPath() + ".png"
+						);
+					})
+					.orElse(BG_TEXTURE);
+
+			return new EffectBarData(icon, DEFAULT_BAR, 39, 4, true);
+		});
+	}
+
 	private void onHudRender(GuiGraphicsExtractor context, DeltaTracker renderTickCounter) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null) return;
 
 		RenderPipeline pipeline = RenderPipelines.GUI_TEXTURED;
 
-		List<MobEffectInstance> displayedEffects = new ArrayList<>();
-		for (MobEffectInstance effect : mc.player.getActiveEffects()) {
-			if (BAR_DATA.containsKey(effect.getEffect())) {
-				displayedEffects.add(effect);
-			}
-		}
+		// Відображаємо всі ефекти, включно зі сторонніми модами
+		List<MobEffectInstance> displayedEffects = new ArrayList<>(mc.player.getActiveEffects());
 
 		displayedEffects.sort(Comparator.comparing(
 				e -> e.getEffect().unwrapKey().map(k -> k.identifier().toString()).orElse("unknown")
@@ -300,11 +330,21 @@ public class PotionBar implements ClientModInitializer {
 			EffectKey key = new EffectKey(effect.getEffect(), effect.getAmplifier());
 			int maxDuration = maxDurations.get(key);
 
-			EffectBarData barData = BAR_DATA.get(effect.getEffect());
+			EffectBarData barData = getBarData(effect);
 			int y = yStart + i * BAR_SPACING;
 
 			context.blit(pipeline, BG_TEXTURE, x, y, 0, 0, 64, 32, 64, 32);
-			context.blit(pipeline, barData.icon, x, y, 0, 0, 64, 32, 64, 32);
+
+			if (barData.isFallback) {
+				// Масштабуємо іконку стороннього мода (18x18 -> ~9x9) і центруємо в слоті
+				context.pose().pushMatrix();
+				context.pose().translate(x + 4.5f, y + 11.5f);
+				context.pose().scale(0.50f, 0.50f);
+				context.blit(pipeline, barData.icon, 0, 0, 0, 0, 18, 18, 18, 18);
+				context.pose().popMatrix();
+			} else {
+				context.blit(pipeline, barData.icon, x, y, 0, 0, 64, 32, 64, 32);
+			}
 
 			float progress = maxDuration > 0
 					? Math.max(0f, Math.min(1f, (float) effect.getDuration() / (float) maxDuration))
