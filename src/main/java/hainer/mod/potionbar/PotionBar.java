@@ -19,243 +19,129 @@ import net.minecraft.world.effect.MobEffects;
 import java.util.*;
 
 public class PotionBar implements ClientModInitializer {
+
 	public static final String MODID = "potion-bar";
-	private static final Identifier BG_TEXTURE = Identifier.fromNamespaceAndPath(MODID, "textures/gui/bg/potion_bg.png");
-	private static final Identifier DEFAULT_BAR = Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/default_bar.png");
-	private static final Identifier HUD_ID = Identifier.fromNamespaceAndPath(MODID, "potion_bar");
+
+	public static final int BG_W = 64;
+	public static final int BG_H = 32;
+
+	private static final Identifier BG_TEXTURE =
+			Identifier.fromNamespaceAndPath(MODID, "textures/gui/bg/potion_bg.png");
+	private static final Identifier DEFAULT_BAR =
+			Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/default_bar.png");
+	private static final Identifier HUD_ID =
+			Identifier.fromNamespaceAndPath(MODID, "potion_bar");
+
+
+
+
 
 	public static class EffectBarData {
 		public final Identifier icon;
 		public final Identifier bar;
-		public final int barWidth;
-		public final int barHeight;
-		public final boolean isFallback;
+		public final int        barWidth;
+		public final int        barHeight;
+		public final boolean    isFallback;
 
 		public EffectBarData(Identifier icon, Identifier bar, int barWidth, int barHeight) {
-			this.icon = icon;
-			this.bar = bar;
-			this.barWidth = barWidth;
-			this.barHeight = barHeight;
-			this.isFallback = false;
+			this(icon, bar, barWidth, barHeight, false);
 		}
 
-		public EffectBarData(Identifier icon, Identifier bar, int barWidth, int barHeight, boolean isFallback) {
-			this.icon = icon;
-			this.bar = bar;
-			this.barWidth = barWidth;
-			this.barHeight = barHeight;
+		public EffectBarData(Identifier icon, Identifier bar,
+							 int barWidth, int barHeight, boolean isFallback) {
+			this.icon       = icon;
+			this.bar        = bar;
+			this.barWidth   = barWidth;
+			this.barHeight  = barHeight;
 			this.isFallback = isFallback;
 		}
 	}
 
+
+
+
+
+	private static final RenderPipeline PIPELINE = RenderPipelines.GUI_TEXTURED;
+
 	private static final Map<Holder<MobEffect>, EffectBarData> BAR_DATA = new HashMap<>();
 
 	static {
-		BAR_DATA.put(MobEffects.ABSORPTION, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/absorption_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/absorption_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.BAD_OMEN, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/bad_omen_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/bad_omen_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.BLINDNESS, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/blindness_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/blindness_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.CONDUIT_POWER, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/conduit_power_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/conduit_power_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.DARKNESS, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/darkness_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/darkness_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.DOLPHINS_GRACE, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/dolphins_grace_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/dolphins_grace_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.FIRE_RESISTANCE, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/fire_resistance_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/fire_resistance_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.GLOWING, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/glowing_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/glowing_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.HASTE, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/haste_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/haste_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.HEALTH_BOOST, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/health_boost_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/health_boost_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.HERO_OF_THE_VILLAGE, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/hero_of_the_village_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/hero_of_the_village_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.HUNGER, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/hunger_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/hunger_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.INFESTED, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/infested_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/infested_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.INSTANT_DAMAGE, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/instant_damage_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/instant_damage_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.INSTANT_HEALTH, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/instant_health_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/instant_health_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.INVISIBILITY, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/invisibility_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/invisibility_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.JUMP_BOOST, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/jump_boost_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/jump_boost_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.LEVITATION, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/levitation_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/levitation_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.LUCK, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/luck_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/luck_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.MINING_FATIGUE, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/mining_fatigue_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/mining_fatigue_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.NAUSEA, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/nausea_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/nausea_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.NIGHT_VISION, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/night_vision_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/night_vision_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.OOZING, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/oozing_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/oozing_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.POISON, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/poison_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/poison_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.RAID_OMEN, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/raid_omen_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/raid_omen_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.REGENERATION, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/regeneration_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/regeneration_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.RESISTANCE, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/resistance_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/resistance_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.SATURATION, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/saturation_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/saturation_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.SLOW_FALLING, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/slow_falling_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/slow_falling_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.SLOWNESS, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/slowness_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/slowness_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.SPEED, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/speed_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/speed_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.STRENGTH, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/strength_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/strength_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.TRIAL_OMEN, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/trial_omen_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/trial_omen_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.UNLUCK, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/unluck_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/unluck_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.WATER_BREATHING, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/water_breathing_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/water_breathing_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.WEAKNESS, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/weakness_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/weakness_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.WEAVING, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/weaving_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/weaving_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.WIND_CHARGED, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/wind_charged_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/wind_charged_bar.png"),
-				39, 4
-		));
-		BAR_DATA.put(MobEffects.WITHER, new EffectBarData(
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/wither_icon.png"),
-				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/wither_bar.png"),
-				39, 4
-		));
+		register(MobEffects.ABSORPTION,          "absorption");
+		register(MobEffects.BAD_OMEN,            "bad_omen");
+		register(MobEffects.BLINDNESS,           "blindness");
+		register(MobEffects.CONDUIT_POWER,       "conduit_power");
+		register(MobEffects.DARKNESS,            "darkness");
+		register(MobEffects.DOLPHINS_GRACE,      "dolphins_grace");
+		register(MobEffects.FIRE_RESISTANCE,     "fire_resistance");
+		register(MobEffects.GLOWING,             "glowing");
+		register(MobEffects.HASTE,               "haste");
+		register(MobEffects.HEALTH_BOOST,        "health_boost");
+		register(MobEffects.HERO_OF_THE_VILLAGE, "hero_of_the_village");
+		register(MobEffects.HUNGER,              "hunger");
+		register(MobEffects.INFESTED,            "infested");
+		register(MobEffects.INSTANT_DAMAGE,      "instant_damage");
+		register(MobEffects.INSTANT_HEALTH,      "instant_health");
+		register(MobEffects.INVISIBILITY,        "invisibility");
+		register(MobEffects.JUMP_BOOST,          "jump_boost");
+		register(MobEffects.LEVITATION,          "levitation");
+		register(MobEffects.LUCK,                "luck");
+		register(MobEffects.MINING_FATIGUE,      "mining_fatigue");
+		register(MobEffects.NAUSEA,              "nausea");
+		register(MobEffects.NIGHT_VISION,        "night_vision");
+		register(MobEffects.OOZING,              "oozing");
+		register(MobEffects.POISON,              "poison");
+		register(MobEffects.RAID_OMEN,           "raid_omen");
+		register(MobEffects.REGENERATION,        "regeneration");
+		register(MobEffects.RESISTANCE,          "resistance");
+		register(MobEffects.SATURATION,          "saturation");
+		register(MobEffects.SLOW_FALLING,        "slow_falling");
+		register(MobEffects.SLOWNESS,            "slowness");
+		register(MobEffects.SPEED,               "speed");
+		register(MobEffects.STRENGTH,            "strength");
+		register(MobEffects.TRIAL_OMEN,          "trial_omen");
+		register(MobEffects.UNLUCK,              "unluck");
+		register(MobEffects.WATER_BREATHING,     "water_breathing");
+		register(MobEffects.WEAKNESS,            "weakness");
+		register(MobEffects.WEAVING,             "weaving");
+		register(MobEffects.WIND_CHARGED,        "wind_charged");
+		register(MobEffects.WITHER,              "wither");
 	}
+
+	private static void register(Holder<MobEffect> effect, String name) {
+		BAR_DATA.put(effect, new EffectBarData(
+				Identifier.fromNamespaceAndPath(MODID, "textures/gui/icon/" + name + "_icon.png"),
+				Identifier.fromNamespaceAndPath(MODID, "textures/gui/bar/"  + name + "_bar.png"),
+				39, 4));
+	}
+
+
+
+
 
 	private static final int BAR_OFFSET_X = 19;
 	private static final int BAR_OFFSET_Y = 14;
-	private static final int BAR_SPACING = 15;
+
+	private static final int TIMER_GAP_LR = 1;
+	private static final int TIMER_GAP_AB = -10;
+
+	private static final int SLOT_GAP       = -16;
+	private static final int SLOT_GAP_TIMER = -10;
+
+	private static final float VANILLA_ICON_SCALE = 0.50f;
+	private static final int   VANILLA_ICON_SRC   = 18;
+
+
+
+
 
 	private record EffectKey(Holder<MobEffect> effect, int amplifier) {}
 
-	private final Map<EffectKey, Integer> maxDurations = new HashMap<>();
+	private final Map<EffectKey, Integer>               maxDurations  = new HashMap<>();
 	private final Map<Holder<MobEffect>, EffectBarData> fallbackCache = new HashMap<>();
+
+
+
+
 
 	@Override
 	public void onInitializeClient() {
@@ -269,103 +155,175 @@ public class PotionBar implements ClientModInitializer {
 		);
 	}
 
-	private EffectBarData getBarData(MobEffectInstance effect) {
-		EffectBarData known = BAR_DATA.get(effect.getEffect());
-		if (known != null) return known;
 
-		return fallbackCache.computeIfAbsent(effect.getEffect(), entry -> {
-			Identifier icon = entry.unwrapKey()
-					.map(k -> {
-						// В деяких версіях 26.x це може бути .registryKey().location()
-						// або просто через toString і парсинг
-						String id = k.toString(); // "minecraft:mob_effect/speed" або подібне
-						// Краще через getId якщо є
-						return Identifier.fromNamespaceAndPath(
-								k.registry().getNamespace(),
-								"textures/mob_effect/" + k.registry().getPath() + ".png"
-						);
-					})
-					.orElse(BG_TEXTURE);
 
-			return new EffectBarData(icon, DEFAULT_BAR, 39, 4, true);
-		});
+
+
+	private int slotHeight(Minecraft mc, ModSettings cfg) {
+		if (!cfg.isTimerEnabled()) return BG_H + SLOT_GAP;
+		return switch (cfg.timerPosition) {
+			case ABOVE, BELOW -> BG_H + mc.font.lineHeight + TIMER_GAP_AB + SLOT_GAP_TIMER;
+			default           -> BG_H + SLOT_GAP;
+		};
 	}
 
-	private void onHudRender(GuiGraphicsExtractor context, DeltaTracker renderTickCounter) {
+	private EffectBarData getBarData(MobEffectInstance eff) {
+		ModSettings cfg = ModSettings.get();
+		if (cfg.useCustomIcons()) {
+			EffectBarData known = BAR_DATA.get(eff.getEffect());
+			if (known != null) return known;
+		}
+		return fallbackCache.computeIfAbsent(eff.getEffect(), this::buildVanillaFallback);
+	}
+
+	private EffectBarData buildVanillaFallback(Holder<MobEffect> entry) {
+		Identifier icon = entry.unwrapKey()
+				.map(k -> {
+
+					Identifier id = k.identifier();
+					return Identifier.fromNamespaceAndPath(
+							id.getNamespace(),
+							"textures/mob_effect/" + id.getPath() + ".png"
+					);
+				})
+				.orElse(BG_TEXTURE);
+		return new EffectBarData(icon, DEFAULT_BAR, 39, 4, true);
+	}
+
+
+	private static String effectSortKey(MobEffectInstance e) {
+		return e.getEffect().unwrapKey()
+				.map(k -> k.identifier().toString())
+				.orElse("unknown");
+	}
+
+	private static String formatDuration(int ticks) {
+		int s = ticks / 20;
+		return (s >= 60) ? String.format("%d:%02d", s / 60, s % 60) : s + "s";
+	}
+
+	private static int timerColour(int ticks) {
+		if (ticks < 200) {
+			Minecraft mc = Minecraft.getInstance();
+			long gt = (mc.level != null) ? mc.level.getGameTime() : 0L;
+			return (gt % 20 < 10) ? 0xFF_FF5555 : 0xFF_FFAA00;
+		}
+		return 0xFF_FFFFFF;
+	}
+
+
+
+
+
+	private void onHudRender(GuiGraphicsExtractor context, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null) return;
 
-		RenderPipeline pipeline = RenderPipelines.GUI_TEXTURED;
+		ModSettings cfg = ModSettings.get();
 
-		// Відображаємо всі ефекти, включно зі сторонніми модами
-		List<MobEffectInstance> displayedEffects = new ArrayList<>(mc.player.getActiveEffects());
+		List<MobEffectInstance> effects = new ArrayList<>(mc.player.getActiveEffects());
+		effects.sort(Comparator.comparing(PotionBar::effectSortKey));
 
-		displayedEffects.sort(Comparator.comparing(
-				e -> e.getEffect().unwrapKey().map(k -> k.identifier().toString()).orElse("unknown")
-		));
 
 		Set<EffectKey> currentKeys = new HashSet<>();
-		for (MobEffectInstance effect : displayedEffects) {
-			EffectKey key = new EffectKey(effect.getEffect(), effect.getAmplifier());
+		for (MobEffectInstance eff : effects) {
+			EffectKey key = new EffectKey(eff.getEffect(), eff.getAmplifier());
 			currentKeys.add(key);
-			maxDurations.putIfAbsent(key, effect.getDuration());
-			if (effect.getDuration() > maxDurations.get(key)) {
-				maxDurations.put(key, effect.getDuration());
-			}
+			maxDurations.putIfAbsent(key, eff.getDuration());
+			if (eff.getDuration() > maxDurations.get(key) + 20)
+				maxDurations.put(key, eff.getDuration());
 		}
-		maxDurations.keySet().removeIf(key -> !currentKeys.contains(key));
+		maxDurations.keySet().removeIf(k -> !currentKeys.contains(k));
 
 		int screenW = mc.getWindow().getGuiScaledWidth();
 
-		int x = switch (ModSettings.get().position) {
-			case LEFT -> 10;
-			case RIGHT -> screenW - 64 - 10;
-			default -> (screenW - 64) / 2;
+		int hudX = switch (cfg.position) {
+			case LEFT   -> 10;
+			case RIGHT  -> screenW - BG_W - 10;
+			case CUSTOM -> cfg.customX;
+			default     -> (screenW - BG_W) / 2;
 		};
+		int hudY = (cfg.position == ModSettings.Position.CUSTOM) ? cfg.customY : 10;
 
-		int yStart = 10;
+		int slot = slotHeight(mc, cfg);
 
-		for (int i = 0; i < displayedEffects.size(); ++i) {
-			MobEffectInstance effect = displayedEffects.get(i);
-			EffectKey key = new EffectKey(effect.getEffect(), effect.getAmplifier());
-			int maxDuration = maxDurations.get(key);
+		for (int i = 0; i < effects.size(); i++) {
 
-			EffectBarData barData = getBarData(effect);
-			int y = yStart + i * BAR_SPACING;
+			MobEffectInstance eff    = effects.get(i);
+			EffectKey         key    = new EffectKey(eff.getEffect(), eff.getAmplifier());
+			int               maxDur = maxDurations.getOrDefault(key, eff.getDuration());
+			EffectBarData     bar    = getBarData(eff);
 
-			context.blit(pipeline, BG_TEXTURE, x, y, 0, 0, 64, 32, 64, 32);
+			int slotTop = hudY + i * slot;
 
-			if (barData.isFallback) {
-				// Масштабуємо іконку стороннього мода (18x18 -> ~9x9) і центруємо в слоті
-				context.pose().pushMatrix();
-				context.pose().translate(x + 4.5f, y + 11.5f);
-				context.pose().scale(0.50f, 0.50f);
-				context.blit(pipeline, barData.icon, 0, 0, 0, 0, 18, 18, 18, 18);
-				context.pose().popMatrix();
-			} else {
-				context.blit(pipeline, barData.icon, x, y, 0, 0, 64, 32, 64, 32);
+			int textReserved = (cfg.isTimerEnabled()
+					&& cfg.timerPosition == ModSettings.TimerPosition.ABOVE)
+					? mc.font.lineHeight + TIMER_GAP_AB
+					: 0;
+			int bgY = slotTop + textReserved;
+
+
+			context.blit(PIPELINE, BG_TEXTURE, hudX, bgY, 0, 0, BG_W, BG_H, BG_W, BG_H);
+
+
+			drawIcon(context, cfg, bar, hudX, bgY);
+
+
+			float progress = (maxDur > 0)
+					? Math.max(0f, Math.min(1f, (float) eff.getDuration() / maxDur))
+					: 0f;
+			int barPx = (int) (bar.barWidth * progress);
+			if (barPx > 0) {
+				context.blit(PIPELINE, bar.bar,
+						hudX + BAR_OFFSET_X, bgY + BAR_OFFSET_Y,
+						0, 0, barPx, bar.barHeight,
+						bar.barWidth, bar.barHeight);
 			}
 
-			float progress = maxDuration > 0
-					? Math.max(0f, Math.min(1f, (float) effect.getDuration() / (float) maxDuration))
-					: 0f;
 
-			int barWidth = (int) (barData.barWidth * progress);
-
-			if (barWidth > 0) {
-				context.blit(
-						pipeline,
-						barData.bar,
-						x + BAR_OFFSET_X,
-						y + BAR_OFFSET_Y,
-						0,
-						0,
-						barWidth,
-						barData.barHeight,
-						barData.barWidth,
-						barData.barHeight
-				);
+			if (cfg.isTimerEnabled() && eff.getDuration() != Integer.MAX_VALUE) {
+				drawTimer(context, mc, eff.getDuration(), cfg.timerPosition, hudX, bgY);
 			}
 		}
+	}
+
+
+
+
+
+	private void drawIcon(GuiGraphicsExtractor context, ModSettings cfg,
+						  EffectBarData bar, int x, int y) {
+		if (!cfg.useCustomIcons() || bar.isFallback) {
+			context.pose().pushMatrix();
+			context.pose().translate(x + 4.5f, y + 11.5f);
+			context.pose().scale(VANILLA_ICON_SCALE, VANILLA_ICON_SCALE);
+			context.blit(PIPELINE, bar.icon, 0, 0, 0, 0,
+					VANILLA_ICON_SRC, VANILLA_ICON_SRC,
+					VANILLA_ICON_SRC, VANILLA_ICON_SRC);
+			context.pose().popMatrix();
+		} else {
+			context.blit(PIPELINE, bar.icon, x, y, 0, 0, BG_W, BG_H, BG_W, BG_H);
+		}
+	}
+
+	private void drawTimer(GuiGraphicsExtractor context, Minecraft mc,
+						   int remainingTicks,
+						   ModSettings.TimerPosition pos,
+						   int bgX, int bgY) {
+		String text   = formatDuration(remainingTicks);
+		int    colour = timerColour(remainingTicks);
+		int    tw     = mc.font.width(text);
+		int    th     = mc.font.lineHeight;
+
+		int drawX, drawY;
+		switch (pos) {
+			case RIGHT -> { drawX = bgX + BG_W + TIMER_GAP_LR;  drawY = bgY + (BG_H - th) / 2; }
+			case LEFT  -> { drawX = bgX - tw - TIMER_GAP_LR;    drawY = bgY + (BG_H - th) / 2; }
+			case BELOW -> { drawX = bgX + (BG_W - tw) / 2;      drawY = bgY + BG_H + TIMER_GAP_AB; }
+			default    -> { drawX = bgX + (BG_W - tw) / 2;      drawY = bgY - th - TIMER_GAP_AB; }
+		}
+
+
+		context.text(mc.font, text, drawX, drawY, colour, true);
 	}
 }

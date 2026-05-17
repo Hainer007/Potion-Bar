@@ -13,7 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PotionBarMixin {
 
 	@Inject(method = "extractEffects", at = @At("HEAD"), cancellable = true)
-	private void potionbar$hideVanillaOverlay(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+	private void potionbar$hideVanillaOverlay(GuiGraphicsExtractor graphics,
+											  DeltaTracker deltaTracker,
+											  CallbackInfo ci) {
 		if (!ModSettings.get().showVanillaEffects()) {
 			ci.cancel();
 		}

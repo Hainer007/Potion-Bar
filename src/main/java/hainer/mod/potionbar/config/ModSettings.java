@@ -11,19 +11,43 @@ import java.nio.file.Path;
 
 public final class ModSettings {
 
+
+
+
+
     public enum Position {
-        CENTER, LEFT, RIGHT;
+        CENTER, LEFT, RIGHT, CUSTOM;
 
         public static Position fromString(String s) {
             if (s == null) return CENTER;
             return switch (s.toLowerCase()) {
-                case "left" -> LEFT;
-                case "right" -> RIGHT;
+                case "left"   -> LEFT;
+                case "right"  -> RIGHT;
                 case "center" -> CENTER;
-                default -> CENTER;
+                case "custom" -> CUSTOM;
+                default       -> CENTER;
             };
         }
     }
+
+    public enum TimerPosition {
+        LEFT, RIGHT, ABOVE, BELOW;
+
+        public static TimerPosition fromString(String s) {
+            if (s == null) return RIGHT;
+            return switch (s.toLowerCase()) {
+                case "left"  -> LEFT;
+                case "right" -> RIGHT;
+                case "above" -> ABOVE;
+                case "below" -> BELOW;
+                default      -> RIGHT;
+            };
+        }
+    }
+
+
+
+
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path FILE = FabricLoader.getInstance()
@@ -32,9 +56,21 @@ public final class ModSettings {
 
     private static ModSettings INSTANCE;
 
-    // ===== default values =====
-    public Position position = Position.CENTER;
-    public boolean vanillaEffects = false;
+
+
+
+
+    public Position      position       = Position.CENTER;
+    public boolean       vanillaEffects = false;
+    public boolean       timerEnabled   = true;
+    public TimerPosition timerPosition  = TimerPosition.RIGHT;
+    public boolean       customIcons    = true;
+    public int           customX        = 10;
+    public int           customY        = 10;
+
+
+
+
 
     private ModSettings() {}
 
@@ -43,13 +79,16 @@ public final class ModSettings {
         return INSTANCE;
     }
 
+
+
+
+
     private static ModSettings load() {
         if (!Files.exists(FILE)) {
             ModSettings cfg = new ModSettings();
             cfg.save();
             return cfg;
         }
-
         try {
             String json = Files.readString(FILE, StandardCharsets.UTF_8);
             ModSettings cfg = GSON.fromJson(json, ModSettings.class);
@@ -70,8 +109,12 @@ public final class ModSettings {
         } catch (IOException ignored) {}
     }
 
+
+
+
+
     public void setPosition(Position pos) {
-        this.position = pos == null ? Position.CENTER : pos;
+        this.position = (pos == null) ? Position.CENTER : pos;
         save();
     }
 
@@ -80,7 +123,32 @@ public final class ModSettings {
         save();
     }
 
-    public boolean showVanillaEffects() {
-        return vanillaEffects;
+    public void setTimerEnabled(boolean enabled) {
+        this.timerEnabled = enabled;
+        save();
     }
+
+    public void setTimerPosition(TimerPosition pos) {
+        this.timerPosition = (pos == null) ? TimerPosition.RIGHT : pos;
+        save();
+    }
+
+    public void setCustomIcons(boolean enabled) {
+        this.customIcons = enabled;
+        save();
+    }
+
+    public void setCustomXY(int x, int y) {
+        this.customX = x;
+        this.customY = y;
+        save();
+    }
+
+
+
+
+
+    public boolean showVanillaEffects() { return vanillaEffects; }
+    public boolean isTimerEnabled()     { return timerEnabled; }
+    public boolean useCustomIcons()     { return customIcons; }
 }
