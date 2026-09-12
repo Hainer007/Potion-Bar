@@ -4,24 +4,42 @@
 No more guessing — see exactly how much time is left for each effect, with a bar and an icon on the side.
 
 ---
+![PotionBar](https://cdn.modrinth.com/data/cached_images/624ab3f030b0af2873a77b8407e50a72628eb588.gif)
+
+---
 
 ### ✅ Features:
 - Displays potion duration as a progress bar  
-- Displays potion effect levels as Roman numerals
 - Colored bars depending on the potion type  
 - Fully **client-side** — no need to install on servers  
-
-Effect levels can be toggled with `/potionbar level on` or `/potionbar level off`.
-
+  
 ---
+### ⚙️ Commands:
+#### Position Hud:
+- /potionbar position center (default)
+- /potionbar position left
+- /potionbar position right
+- /potionbar position custom — opens HUD editor (drag \& drop)
 
-A simple, useful, and pixel-perfect way to keep track of your potion effects.
+#### Show Vanilla effects:
+- /potionbar vanilaEffects show
+- /potionbar vanilaEffects hide (default)
 
----
+#### Timer system:
+- /potionbar timer on — enable potion effect timer
+- /potionbar timer off — disable potion effect timer
+- /potionbar timer left — show timer on the left
+- /potionbar timer right — show timer on the right (default)
+- /potionbar timer above — show timer above the icon
+- /potionbar timer below — show timer below the icon
 
-🟩 **Minecraft**: 1.21.2-1.21.11
-🧵 **Modloader**: Fabric   
+#### Custom icons:
+- /potionbar CustomIcons on — enable custom textures (default)
+- /potionbar CustomIcons off — disable (vanilla textures)
 
+#### Level:
+- /potionbar level on — enable level effects (default)
+- /potionbar level off — disable level effects
 ---
 
 ### 📸 Screenshots:
