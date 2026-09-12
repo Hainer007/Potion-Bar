@@ -191,11 +191,11 @@ public class CustomPositionScreen extends Screen {
         ModSettings cfg = ModSettings.get();
         cfg.setCustomXY(previewX, previewY);
         cfg.setPosition(ModSettings.Position.CUSTOM);
-        Minecraft.getInstance().setScreen(null);
+        Minecraft.getInstance().gui.setScreen(null);
     }
 
     private void onCancel() {
-        Minecraft.getInstance().setScreen(null);
+        Minecraft.getInstance().gui.setScreen(null);
     }
 
     private static int clamp(int v, int min, int max) {

@@ -20,9 +20,9 @@ public final class PotionBarCommands {
 
 
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
-            if (pendingCustomScreen && mc.screen == null) {
+            if (pendingCustomScreen && mc.gui.screen() == null) {
                 pendingCustomScreen = false;
-                mc.setScreen(new CustomPositionScreen());
+                mc.gui.setScreen(new CustomPositionScreen());
             }
         });
 
@@ -133,7 +133,30 @@ public final class PotionBarCommands {
                             )
                     )
 
-
+                    .then(literal("level")
+                            .then(argument("mode", StringArgumentType.word())
+                                    .suggests((ctx, b) -> {
+                                        b.suggest("on");
+                                        b.suggest("off");
+                                        return b.buildFuture();
+                                    })
+                                    .executes(ctx -> {
+                                        String mode = StringArgumentType.getString(ctx, "mode").toLowerCase();
+                                        if (!mode.equals("on") && !mode.equals("off")) {
+                                            ctx.getSource().sendError(
+                                                    Component.literal("Usage: /potionbar level on|off")
+                                            );
+                                            return 0;
+                                        }
+                                        boolean on = mode.equals("on");
+                                        ModSettings.get().setShowLevel(on);
+                                        ctx.getSource().sendFeedback(
+                                                Component.literal("PotionBar level = " + (on ? "on" : "off"))
+                                        );
+                                        return 1;
+                                    })
+                            )
+                    )
 
 
                     .then(literal("customIcons")

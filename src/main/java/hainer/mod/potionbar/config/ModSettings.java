@@ -65,6 +65,7 @@ public final class ModSettings {
     public boolean       timerEnabled   = true;
     public TimerPosition timerPosition  = TimerPosition.RIGHT;
     public boolean       customIcons    = true;
+    public boolean       showLevel      = true;
     public int           customX        = 10;
     public int           customY        = 10;
 
@@ -138,6 +139,11 @@ public final class ModSettings {
         save();
     }
 
+    public void setShowLevel(boolean show) {
+        this.showLevel = show;
+        save();
+    }
+
     public void setCustomXY(int x, int y) {
         this.customX = x;
         this.customY = y;
@@ -151,4 +157,5 @@ public final class ModSettings {
     public boolean showVanillaEffects() { return vanillaEffects; }
     public boolean isTimerEnabled()     { return timerEnabled; }
     public boolean useCustomIcons()     { return customIcons; }
+    public boolean showLevel()          { return showLevel; }
 }

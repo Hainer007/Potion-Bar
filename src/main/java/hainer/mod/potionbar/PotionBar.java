@@ -197,6 +197,22 @@ public class PotionBar implements ClientModInitializer {
 				.orElse("unknown");
 	}
 
+	private static String toRoman(int value) {
+		if (value <= 0) return "";
+
+		int[] values = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+		String[] numerals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+		StringBuilder result = new StringBuilder();
+
+		for (int i = 0; i < values.length; i++) {
+			while (value >= values[i]) {
+				result.append(numerals[i]);
+				value -= values[i];
+			}
+		}
+		return result.toString();
+	}
+
 	private static String formatDuration(int ticks) {
 		int s = ticks / 20;
 		return (s >= 60) ? String.format("%d:%02d", s / 60, s % 60) : s + "s";
@@ -217,7 +233,7 @@ public class PotionBar implements ClientModInitializer {
 
 	private void onHudRender(GuiGraphicsExtractor context, DeltaTracker deltaTracker) {
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.player == null) return;
+		if (mc.player == null || mc.gui.hud.isHidden()) return;
 
 		ModSettings cfg = ModSettings.get();
 
@@ -284,6 +300,10 @@ public class PotionBar implements ClientModInitializer {
 			if (cfg.isTimerEnabled() && eff.getDuration() != Integer.MAX_VALUE) {
 				drawTimer(context, mc, eff.getDuration(), cfg.timerPosition, hudX, bgY);
 			}
+
+			if (cfg.showLevel() && eff.getAmplifier() > 0) {
+				drawLevel(context, mc, eff.getAmplifier() + 1, hudX, bgY);
+			}
 		}
 	}
 
@@ -325,5 +345,17 @@ public class PotionBar implements ClientModInitializer {
 
 
 		context.text(mc.font, text, drawX, drawY, colour, true);
+	}
+
+	private void drawLevel(GuiGraphicsExtractor context, Minecraft mc,
+						   int level, int bgX, int bgY) {
+		String text = toRoman(level);
+		if (text.isEmpty()) return;
+
+		context.pose().pushMatrix();
+		context.pose().translate(bgX + 3, bgY + BG_H - 13);
+		context.pose().scale(0.5f, 0.5f);
+		context.text(mc.font, text, 0, 0, 0xFF_FFFFFF, true);
+		context.pose().popMatrix();
 	}
 }

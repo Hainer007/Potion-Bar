@@ -7,8 +7,11 @@ No more guessing — see exactly how much time is left for each effect, with a b
 
 ### ✅ Features:
 - Displays potion duration as a progress bar  
+- Displays potion effect levels as Roman numerals
 - Colored bars depending on the potion type  
 - Fully **client-side** — no need to install on servers  
+
+Effect levels can be toggled with `/potionbar level on` or `/potionbar level off`.
 
 ---
 
