@@ -1,6 +1,6 @@
 package hainer.mod.potionbar;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import hainer.mod.potionbar.config.ModSettings;
 import hainer.mod.potionbar.config.PotionBarCommands;
 import net.fabricmc.api.ClientModInitializer;

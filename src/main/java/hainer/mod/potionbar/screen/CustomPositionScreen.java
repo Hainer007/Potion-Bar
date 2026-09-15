@@ -9,7 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class CustomPositionScreen extends Screen {
 
@@ -140,7 +140,7 @@ public class CustomPositionScreen extends Screen {
 
         int totalH = PREVIEW_H + (PREVIEW_ROWS - 1) * PREVIEW_ROW_SPACING;
 
-        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT
+        if (button == InputConstants.MOUSE_BUTTON_LEFT
                 && mouseX >= previewX
                 && mouseX < previewX + PREVIEW_W
                 && mouseY >= previewY
@@ -158,7 +158,7 @@ public class CustomPositionScreen extends Screen {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent event) {
-        if (event.button() == GLFW.GLFW_MOUSE_BUTTON_LEFT) dragging = false;
+        if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) dragging = false;
         return super.mouseReleased(event);
     }
 
@@ -180,7 +180,7 @@ public class CustomPositionScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (event.key() == GLFW.GLFW_KEY_ESCAPE) { // або просто event.isEscape()
+        if (event.key() == InputConstants.KEY_ESCAPE) { // або просто event.isEscape()
             onCancel();
             return true;
         }
